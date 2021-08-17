@@ -55,7 +55,7 @@ def filter_result(model_results):
       if "tag" in result and (result["tag"] == "B-PER" or result["tag"] == "I-PER"):
         new_results.append(result)
   return new_results
-  
+
 #Upload
 @app.route('/api/upload',methods=['GET','POST'])
 def uploadFile():
@@ -93,7 +93,7 @@ def uploadFile():
             return jsonify({"result":"Model Failed"})
 
           
-      return jsonify({"result":"Success"})
+      return jsonify({"result":response})
     else:
         return jsonify({"result":"Please post"})
 

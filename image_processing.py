@@ -75,8 +75,9 @@ def remove_borders(gray_image, output_path, fname, is_debug = False):
 def start_processing(image_path):
     is_debug = False
     start = time.time()
-
-    vision_cred_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'summit202109-904a442b8d41.json'))
+    # 1496c861-4ed7-4c37-9eef-cdc10b443e2f.json
+    # summit202109-904a442b8d41.json
+    vision_cred_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '1496c861-4ed7-4c37-9eef-cdc10b443e2f.json'))
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = vision_cred_path
 
     vision_client = vision.ImageAnnotatorClient()
