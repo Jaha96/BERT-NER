@@ -51,9 +51,10 @@ def hello():                      # call method hello
 def filter_result(model_results):
   new_results = []
   if "result" in model_results:
-    for result in model_results["result"]:
-      if "tag" in result and (result["tag"] == "B-PER" or result["tag"] == "I-PER"):
-        new_results.append(result)
+      for result in model_results["result"]:
+        if "tag" in result and ("PER" in result["tag"]):
+          new_results.append(result)
+  print(new_results)
   return new_results
 
 #Upload
