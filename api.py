@@ -108,7 +108,8 @@ def predict():
             r = model.predict(t)
             result += r
         # out = model.predict(text)
-        return jsonify({"result":result})
+        model_result = filter_result(result)
+        return jsonify({"result":model_result})
     except Exception as e:
         print(e)
         return jsonify({"result":"Model Failed"})
