@@ -29,9 +29,10 @@ model = Ner("./out_base/")
 @app.route("/predict",methods=['POST'])
 def predict():
     text = request.json["text"]
+    str_text = mecab_normalize(text)
     result = []
     try:
-        str_txts = textwrap.wrap(text, 500)
+        str_txts = textwrap.wrap(str_text, 500)
         for t in str_txts:
             r = model.predict(t)
             result += r
