@@ -8,12 +8,15 @@ import os
 import random
 import sys
 
+from pytorch_pretrained_bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
+
 import numpy as np
 import torch
 import torch.nn.functional as F
-from pytorch_transformers import (WEIGHTS_NAME, AdamW, BertConfig,
+from pytorch_transformers import (WEIGHTS_NAME, AdamW,
                                   BertForTokenClassification, BertTokenizer,
                                   WarmupLinearSchedule)
+from transformers import BertJapaneseTokenizer, BertConfig
 from torch import nn
 from torch.utils.data import (DataLoader, RandomSampler, SequentialSampler,
                               TensorDataset)
@@ -405,7 +408,7 @@ def main():
     label_list = processor.get_labels()
     num_labels = len(label_list) + 1
 
-    tokenizer = BertTokenizer.from_pretrained(args.bert_model, do_lower_case=args.do_lower_case)
+    tokenizer = BertJapaneseTokenizer.from_pretrained(args.bert_model, do_lower_case=args.do_lower_case)
 
     train_examples = None
     num_train_optimization_steps = 0
@@ -420,13 +423,18 @@ def main():
         torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
 
     # Prepare model
-    config = BertConfig.from_pretrained(args.bert_model, num_labels=num_labels, finetuning_task=args.task_name)
-    model = Ner.from_pretrained(args.bert_model,
-              from_tf = False,
-              config = config)
+    # config = BertConfig.from_pretrained(args.bert_model, num_labels=num_labels, finetuning_task=args.task_name)
+    # model = Ner.from_pretrained(args.bert_model,
+    #           from_tf = False,
+    #           config = config)
+    cache_dir = args.cache_dir if args.cache_dir else os.path.join(str(PYTORCH_PRETRAINED_BERT_CACHE),
+                                                                   'distributed_{}'.format(args.local_rank))
+    model = BertForTokenClassification.from_pretrained(args.bert_model,
+                                                       cache_dir=cache_dir,
+                                                       num_labels=num_labels)
 
-    if args.local_rank == 0:
-        torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
+    # if args.local_rank == 0:
+    #     torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
 
     model.to(device)
 
@@ -492,6 +500,7 @@ def main():
                 if args.gradient_accumulation_steps > 1:
                     loss = loss / args.gradient_accumulation_steps
 
+                logger.info("  Loss = %d", loss)
                 if args.fp16:
                     with amp.scale_loss(loss, optimizer) as scaled_loss:
                         scaled_loss.backward()
@@ -520,7 +529,7 @@ def main():
     else:
         # Load a trained model and vocabulary that you have fine-tuned
         model = Ner.from_pretrained(args.output_dir)
-        tokenizer = BertTokenizer.from_pretrained(args.output_dir, do_lower_case=args.do_lower_case)
+        tokenizer = BertJapaneseTokenizer.from_pretrained(args.output_dir, do_lower_case=args.do_lower_case)
 
     model.to(device)
 
