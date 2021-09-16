@@ -2,6 +2,7 @@ import os
 import subprocess
 import textwrap
 import uuid
+import copy
 
 import MeCab
 from flask import Flask, jsonify, request
@@ -78,6 +79,7 @@ def uploadFile():
           file.save(file_path)
 
           text = start_processing(file_path)
+          return_text = copy.deepcopy(text)
           str_text = mecab_normalize(text)
           model_result = []
           try:
@@ -86,7 +88,7 @@ def uploadFile():
                 r = model.predict(t)
                 model_result += r
             model_result = filter_result(model_result)
-            response.append({"text": text, "ner": model_result})
+            response.append({"text": return_text, "ner": model_result})
           except Exception as e:
             print(e)
             return jsonify({"result":"Model Failed"})
