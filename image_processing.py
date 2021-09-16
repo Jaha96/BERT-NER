@@ -56,8 +56,8 @@ def get_text(borderless_image, output_path, fname, vision_client, is_debug = Fal
     all_text = ""
     for row in top_rows_grouped_text:
         for col in row:
-            all_text += col.text
-
+            all_text += col.text + " "
+        all_text += "\n"
     return all_text
 
 
